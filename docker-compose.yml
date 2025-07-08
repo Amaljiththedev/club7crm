@@ -1,0 +1,91 @@
+services:
+  web:
+    build: .
+    container_name: club7gymcrm_web
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14
+    container_name: club7gymcrm_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: club7gymcrm_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  redis:
+    image: redis:7
+    container_name: club7gymcrm_redis
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    container_name: club7gymcrm_celery
+    command: celery -A gymcrm worker --loglevel=info
+    volumes:
+      - .:/app  # Fixed: Changed from .:/code to .:/app to match web service
+    working_dir: /app  # Added working directory
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped  # Added restart policy
+
+  # Optional: Add Celery Beat for scheduled tasks
+  celery-beat:
+    build: .
+    container_name: club7gymcrm_celery_beat
+    command: celery -A gymcrm beat --loglevel=info
+    volumes:
+      - .:/app
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+
+
+volumes:
+  pgdata:

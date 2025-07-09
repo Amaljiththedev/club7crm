@@ -55,3 +55,4 @@ def send_welcome_whatsapp_signal(sender, instance, created, **kwargs):
         
     else:
         pass
+

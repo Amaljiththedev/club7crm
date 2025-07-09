@@ -10,3 +10,5 @@ redis
 requests
 twilio
 django-extensions
+djangorestframework-simplejwt
+django-cors-headers

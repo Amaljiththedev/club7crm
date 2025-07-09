@@ -4,4 +4,4 @@ from .models import MembershipPlan
 class MembershipPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = MembershipPlan
-        fields = '__all__'
+        fields = ['id', 'name', 'duration_days', 'price', 'type']

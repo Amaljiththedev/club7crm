@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Membership Receipt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .receipt-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .receipt-info {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .receipt-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .receipt-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .receipt-date {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .gym-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .gym-info h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .gym-details {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+            display: inline-block;
+        }
+
+        .member-info, .subscription-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .plan-details {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .plan-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .plan-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        .plan-item-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .plan-item-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .price-highlight {
+            font-size: 2rem !important;
+            color: #ffd700;
+        }
+
+        .validity-section {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin: 20px 0;
+        }
+
+        .validity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .validity-item {
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #28a745;
+        }
+
+        .validity-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .validity-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px dashed #ddd;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .signature-box {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+            height: 40px;
+        }
+
+        .signature-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        .footer-message {
+            margin-bottom: 10px;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .qr-code {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 10px;
+            background: #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .terms-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .terms-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .terms-list {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .terms-list li {
+            margin-bottom: 5px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .receipt-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏋️‍♂️ GYM MEMBERSHIP</h1>
+            <div class="subtitle">Official Receipt & Membership Certificate</div>
+        </div>
+
+        <!-- Receipt Info -->
+        <div class="receipt-info">
+            <div class="receipt-meta">
+                <div class="receipt-number">Receipt #: SUB-{{ subscription.id|slice:":8" }}</div>
+                <div class="receipt-date">Generated: {{ generated_date }}</div>
+            </div>
+            
+            <div class="gym-info">
+                <h2>{{ gym_name }}</h2>
+                <div class="gym-details">
+                    {% if gym_address %}{{ gym_address }}<br>{% endif %}
+                    {% if gym_phone %}📞 {{ gym_phone }}{% endif %}
+                    {% if gym_email %} | 📧 {{ gym_email }}{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Member Information -->
+            <div class="section">
+                <h3 class="section-title">👤 Member Information</h3>
+                <div class="member-info">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">{{ member.full_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Member ID</div>
+                            <div class="info-value">{{ member.id|slice:":8" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">{{ member.phone_number|default:"Not provided" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ member.email|default:"Not provided" }}</div>
+                        </div>
+                        {% if member.biometric_id %}
+                        <div class="info-item">
+                            <div class="info-label">Biometric ID</div>
+                            <div class="info-value">{{ member.biometric_id }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">
+                                <span class="status-badge status-{{ subscription.status }}">
+                                    {{ subscription.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Details -->
+            <div class="section">
+                <h3 class="section-title">🏃‍♂️ Membership Plan</h3>
+                <div class="plan-details">
+                    <div class="plan-name">{{ plan.name }}</div>
+                    <div class="plan-grid">
+                        {% if plan.price %}
+                        <div class="plan-item">
+                            <div class="plan-item-label">Amount Paid</div>
+                            <div class="plan-item-value price-highlight">₹{{ plan.price|floatformat:2 }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="plan-item">
+                            <div class="plan-item-label">Duration</div>
+                            <div class="plan-item-value">{{ plan.duration_days }} Days</div>
+                        </div>
+                        {% if plan.Features %}
+                        <div class="plan-item">
+                            <div class="plan-item-label">Features</div>
+                            <div class="plan-item-value">{{ plan.Features }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validity Section -->
+            <div class="section">
+                <h3 class="section-title">⏱️ Validity</h3>
+                <div class="validity-section">
+                    <div class="validity-grid">
+                        <div class="validity-item">
+                            <div class="validity-label">Start Date</div>
+                            <div class="validity-value">{{ subscription.start_date }}</div>
+                        </div>
+                        <div class="validity-item">
+                            <div class="validity-label">End Date</div>
+                            <div class="validity-value">{{ subscription.end_date }}</div>
+                        </div>
+                        <div class="validity-item">
+                            <div class="validity-label">Remaining Days</div>
+                            <div class="validity-value">{{ subscription.remaining_days }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="section">
+                <h3 class="section-title">✍️ Signature</h3>
+                <div class="signature-section">
+                    <div class="signature-grid">
+                        <div class="signature-box">
+                            <div class="signature-line"></div>
+                            <div class="signature-label">Authorized Signature</div>
+                        </div>
+                        <div class="signature-box">
+                            <div class="signature-line"></div>
+                            <div class="signature-label">Member's Signature</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="section">
+                <h3 class="section-title">🔗 QR Code</h3>
+                <div class="qr-section">
+                    <div class="qr-code">
+                        {{ qr_code_data }}
+                    </div>
+                    <p>Scan this QR code to access your membership details.</p>
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="section">
+                <h3 class="section-title">📜 Terms and Conditions</h3>
+                <div class="terms-section">
+                    <div class="terms-title">Membership Agreement</div>
+                    <ul class="terms-list">
+                        <li>This membership is valid for {{ plan.duration_days }} days.</li>
+                        <li>Membership fees are non-refundable.</li>
+                        <li>Members must adhere to the gym's rules and regulations.</li>
+                        <li>The gym reserves the right to modify these terms at any time.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div> <!-- Close main-content -->
+
+        <div class="footer">
+            <div class="footer-message">Thank you for choosing {{ gym_name }}!</div>
+            <div>Powered by Club7 Gym CRM</div>
+        </div>
+
+    </div> <!-- Close receipt-container -->
+</body>
+</html>

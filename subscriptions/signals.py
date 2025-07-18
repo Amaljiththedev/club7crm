@@ -1,7 +1,8 @@
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from subscriptions.models import Subscription, SubscriptionHistory, SubscriptionPlanChangeLog
-from django.utils.timezone import now, timedelta
+from django.utils import timezone
+from datetime import timedelta
 
 
 
@@ -44,6 +45,8 @@ def get_subscription_snapshot(subscription: Subscription):
         "member_id": subscription.member.id,
         "plan_id": subscription.plan.id,
         "plan_name": subscription.plan.name,
+        "plan_price": float(subscription.plan.price),
+        "plan_duration_days": subscription.plan.duration_days,
         "start_date": str(subscription.start_date),
         "end_date": str(subscription.end_date),
         "status": subscription.status,
@@ -51,12 +54,13 @@ def get_subscription_snapshot(subscription: Subscription):
         "signed_by_member": subscription.signed_by_member,
         "created_at": str(subscription.created_at),
         "updated_at": str(subscription.updated_at),
+        # Add any other fields you want to track
     }
 
 @receiver(pre_save, sender=Subscription)
 def snapshot_before_subscription_update(sender, instance, **kwargs):
     if not instance.pk:
-        return  # Skip new subscriptions
+        return  # Skip new subscriptions (handled by post_save above)
 
     try:
         old = Subscription.objects.get(pk=instance.pk)
@@ -73,25 +77,30 @@ def snapshot_before_subscription_update(sender, instance, **kwargs):
 
     if plan_changed or status_changed or other_changes:
         note = ""
-
-        # If plan changed during grace, log it separately too
         if plan_changed and old.status == "active":
             grace_days = 30 if old.plan.duration_days >= 365 else 10
             grace_end = old.start_date + timedelta(days=grace_days)
-            if now().date() <= grace_end:
+            if timezone.now().date() <= grace_end:
                 note = "Plan changed during grace period"
-
-                # Auto-log plan change
                 SubscriptionPlanChangeLog.objects.create(
                     subscription=old,
                     old_plan=old.plan,
                     new_plan=instance.plan,
-                    changed_by=None  # Or use `threadlocals` if tracking user
+                    changed_by=None
                 )
-
         SubscriptionHistory.objects.create(
             subscription=old,
             snapshot=get_subscription_snapshot(old),
             member_snapshot=get_member_snapshot(old.member),
             note=note or "Subscription updated"
+        )
+
+@receiver(post_save, sender=Subscription)
+def snapshot_on_subscription_create(sender, instance, created, **kwargs):
+    if created:
+        SubscriptionHistory.objects.create(
+            subscription=instance,
+            snapshot=get_subscription_snapshot(instance),
+            member_snapshot=get_member_snapshot(instance.member),
+            note="Subscription created"
         )

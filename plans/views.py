@@ -4,10 +4,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import MembershipPlan
 from .serializers import MembershipPlanSerializer
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
 class MembershipPlanViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = MembershipPlan.objects.all()
     serializer_class = MembershipPlanSerializer
 

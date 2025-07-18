@@ -12,3 +12,4 @@ twilio
 django-extensions
 djangorestframework-simplejwt
 django-cors-headers
+xhtml2pdf

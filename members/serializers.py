@@ -6,6 +6,7 @@ class MemberSerializer(serializers.ModelSerializer):
     # Read-only calculated fields
     age = serializers.SerializerMethodField(read_only=True)
     bmi = serializers.SerializerMethodField(read_only=True)
+    profile_photo = serializers.SerializerMethodField(read_only=True)  # Changed to method field
 
     class Meta:
         model = Member
@@ -61,3 +62,19 @@ class MemberSerializer(serializers.ModelSerializer):
 
     def get_bmi(self, obj):
         return obj.bmi
+
+    def get_profile_photo(self, obj):
+        request = self.context.get('request', None)
+        if obj.profile_photo:
+            try:
+                import os
+                file_path = obj.profile_photo.path
+                if os.path.exists(file_path):
+                    url = obj.profile_photo.url
+                    if request is not None:
+                        return request.build_absolute_uri(url)
+                    else:
+                        return url
+            except Exception:
+                pass
+        return None

@@ -51,6 +51,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+   
 ]
 
 
@@ -148,9 +150,12 @@ CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
 CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
 
 # Twilio WhatsApp settings
-TWILIO_ACCOUNT_SID = os.environ.get('TWILO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
-TWILIO_WHATSAPP_NUMBER = os.environ.get('TWILO_WHATSAPP_NUMBER')
+TWILIO_ACCOUNT_SID = 'AC939672b38c85b1b8dcf45c53923e6a8b'
+TWILIO_AUTH_TOKEN = '27342339bf0faaf09dd2321bcf5f4240'
+TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886'
+
+
+
 # settings.py
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://club7gymcrm_redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://club7gymcrm_redis:6379/0")
@@ -184,16 +189,15 @@ CELERY_ENABLE_UTC = True
 
 
 
+# Django REST Framework & JWT settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': [
+    'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    ],
+    ),
 }
-
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -203,33 +207,57 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-    'JTI_CLAIM': 'jti',
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-
-
-AUTH_USER_MODEL = 'management.User'  # Replace with your actual app name
+AUTH_USER_MODEL = 'management.User'
 
 # CORS settings (for frontend integration)
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React default
-    "http://127.0.0.1:3000",
-]
+CORS_ALLOW_ALL_ORIGINS = True  # Only for development
+
 
 CORS_ALLOW_ALL_ORIGINS = True  # Only for development
+CORS_ALLOW_CREDENTIALS = True
+
+
+
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,  # This is important for app templates
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
